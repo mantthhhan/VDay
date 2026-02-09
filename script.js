@@ -1,3 +1,18 @@
+// Get girl's name from URL parameter or use default
+function getGirlName() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('m') || 'Sweetie';
+}
+
+// Update headline with dynamic name
+function setHeadline() {
+  const girlName = getGirlName();
+  const headline = document.querySelector('.headline');
+  if (headline) {
+    headline.textContent = `Hey ${girlName}, will you be my Valentine?`;
+  }
+}
+
 // Valentine page interactions
 const yesBtn = document.getElementById('yesBtn');
 const noBtn = document.getElementById('noBtn');
@@ -8,6 +23,9 @@ const bgMusic = document.getElementById('bgMusic');
 if (!yesBtn || !noBtn) {
   console.warn('Buttons not found in DOM');
 }
+
+// Set the dynamic headline when page loads
+document.addEventListener('DOMContentLoaded', setHeadline);
 
 // Ensure the No button stays hard to click by moving it to a random visible position
 function moveNoButton(playful = true){
