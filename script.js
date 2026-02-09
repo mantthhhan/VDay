@@ -19,6 +19,8 @@ const noBtn = document.getElementById('noBtn');
 const result = document.getElementById('result');
 const confettiRoot = document.getElementById('confetti');
 const bgMusic = document.getElementById('bgMusic');
+// safe lookup for optional music toggle control (may be absent)
+const musicToggle = document.getElementById('musicToggle');
 
 if (!yesBtn || !noBtn) {
   console.warn('Buttons not found in DOM');
@@ -167,7 +169,7 @@ function launchHearts(count=20){
     el.style.left = (50 + (Math.random()*60-30)) + '%';
     el.style.bottom = '-8%';
     el.style.position = 'fixed';
-    el.style.zIndex = 8;
+    el.style.zIndex = 2;
     el.style.pointerEvents = 'none';
     // slight color variation
     const r1 = Math.floor(240 + Math.random()*15);
@@ -189,6 +191,72 @@ function launchHearts(count=20){
   }
 }
 
+// Create and launch floating emojis continuously
+function launchFloatingEmoji(){
+  const emojis = ['🌹', '🌻'];
+  
+  // create a single floating emoji element
+  function createFloatingEmoji(){
+    const el = document.createElement('div');
+    el.className = 'floating-emoji';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+    // random horizontal position across the screen (avoid edges)
+    const leftPos = Math.random() * 90 + 5; // 5% to 95%
+    el.style.left = leftPos + '%';
+
+    // slight size variation
+    const size = 20 + Math.random() * 28; // px
+    el.style.fontSize = size + 'px';
+
+    // place just below the viewport
+    el.style.bottom = '-40px';
+
+    // place hearts inside the confetti root so they stay behind the card
+    if (confettiRoot) {
+      confettiRoot.appendChild(el);
+    } else {
+      document.body.appendChild(el);
+    }
+
+    // faster animation for rain-like effect (shorter durations)
+    const animDur = 3000 + Math.random() * 1500; // 3s - 4.5s
+    const drift = (Math.random() * 120 - 60); // horizontal drift
+
+    el.animate([
+      { transform: `translateX(0px) translateY(0px) rotate(0deg)`, opacity: 0 },
+      { transform: `translateX(${drift}px) translateY(-30vh) rotate(180deg)`, opacity: 1, offset: 0.15 },
+      { transform: `translateX(${drift}px) translateY(-95vh) rotate(360deg)`, opacity: 0 }
+    ], {
+      duration: animDur,
+      easing: 'linear'
+    });
+
+    // cleanup after animation
+    setTimeout(() => { el.remove(); }, animDur + 120);
+  }
+
+  // spawn multiple emojis per tick to look like a rain
+  function spawnBatch(){
+    const count = 6 + Math.floor(Math.random() * 6); // 6-11 emojis per batch
+    for(let i=0;i<count;i++){
+      // stagger small offsets so they don't all overlap exactly
+      setTimeout(createFloatingEmoji, Math.random() * 300);
+    }
+  }
+
+  // interval between batches (short for heavy rain)
+  const batchInterval = 400; // ms
+  const intervalId = setInterval(spawnBatch, batchInterval);
+
+  // immediate start: one quick burst
+  spawnBatch();
+  setTimeout(spawnBatch, 150);
+
+  // return interval id in case we want to stop later
+  return intervalId;
+}
+
 // Music toggle: play/pause. User may add a file at assets/music.mp3 and uncomment source in HTML.
 if (musicToggle && bgMusic){
   musicToggle.addEventListener('click', ()=>{
@@ -207,4 +275,7 @@ window.addEventListener('load', ()=>{
   if(!noBtn) return;
   // place using the shared moveNoButton logic once (non-playful)
   moveNoButton(false);
+  
+  // Start floating emojis
+  launchFloatingEmoji();
 });
