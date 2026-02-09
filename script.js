@@ -120,22 +120,7 @@ function moveNoButton(playful = true){
   }
 }
 
-// Move when user tries to hover / approach
-let lastMove = 0;
-document.addEventListener('mousemove', (e)=>{
-  if (!noBtn) return;
-  const now = Date.now();
-  if(now - lastMove < 160) return; // throttle
-  const nbRect = noBtn.getBoundingClientRect();
-  const dx = e.clientX - (nbRect.left + nbRect.width/2);
-  const dy = e.clientY - (nbRect.top + nbRect.height/2);
-  const dist = Math.hypot(dx,dy);
-  const threshold = Math.max(90, Math.min(window.innerWidth/5, 200));
-  if(dist < threshold){
-    lastMove = now;
-    moveNoButton(true);
-  }
-});
+
 
 // Touch support and pointer events to make it hard to tap
 if (noBtn) {
@@ -273,9 +258,5 @@ if (musicToggle && bgMusic){
 // Keep the No button initially in a cute position centered-right
 window.addEventListener('load', ()=>{
   if(!noBtn) return;
-  // place using the shared moveNoButton logic once (non-playful)
-  moveNoButton(false);
-  
-  // Start floating emojis
   launchFloatingEmoji();
 });
